@@ -1,0 +1,26 @@
+:root {
+  --color-primary: #000000;
+  --color-background: #fcf9f8;
+  --color-surface: #fcf9f8;
+  --color-on-surface: #1c1b1b;
+  --color-on-surface-variant: #444748;
+  --color-surface-container-low: #f6f3f2;
+  --color-surface-container: #f0eded;
+  --color-surface-container-high: #eae7e7;
+  --color-surface-container-highest: #e5e2e1;
+  --color-outline: #747878;
+  --color-outline-variant: #c4c7c7;
+  --color-tertiary-container: #400100;
+  --color-on-tertiary-container: #ea4d37;
+  --color-accent-red: #D8402C;
+  --color-error: #ba1a1a;
+
+  --font-hanken: 'Hanken Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-bricolage: 'Bricolage Grotesque', sans-serif;
+
+  --spacing-margin-page: 4rem;
+  --spacing-margin-mobile: 1.25rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-section-gap: 8rem;
+}
