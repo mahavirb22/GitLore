@@ -34,7 +34,7 @@ export default function MobileMenu({ isOpen, onClose }) {
           Narrative Timeline
         </Link>
         <Link
-          to="/analysis-alt"
+          to="/analysis"
           onClick={onClose}
           className="font-headline-lg text-headline-lg text-primary uppercase"
         >

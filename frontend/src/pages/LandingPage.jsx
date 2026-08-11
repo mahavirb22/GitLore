@@ -39,7 +39,7 @@ export default function LandingPage() {
             <span className="font-label-caps text-[10px] uppercase">Timeline</span>
           </Link>
           <Link
-            to="/analysis-alt"
+            to="/analysis"
             className="flex flex-col items-center justify-center gap-1 text-on-surface-variant hover:text-primary transition-colors"
           >
             <span className="material-symbols-outlined text-[20px]">difference</span>

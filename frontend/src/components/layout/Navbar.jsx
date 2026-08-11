@@ -37,23 +37,19 @@ export default function Navbar() {
                   : 'font-label-caps text-on-surface-variant hover:text-on-surface'
               }`}
             >
-              Analysis (Desktop)
-            </Link>
-            <Link
-              to="/analysis-alt"
-              className={`transition-colors uppercase ${
-                location.pathname === '/analysis-alt'
-                  ? 'text-primary font-bold underline underline-offset-8 decoration-2 font-label-caps'
-                  : 'font-label-caps text-on-surface-variant hover:text-on-surface'
-              }`}
-            >
-              Timeline (Mobile)
+              Analysis
             </Link>
             <a
               href="#pricing"
               className="font-label-caps text-on-surface-variant hover:text-on-surface transition-colors uppercase"
             >
               Pricing
+            </a>
+            <a
+              href="#docs"
+              className="font-label-caps text-on-surface-variant hover:text-on-surface transition-colors uppercase"
+            >
+              Docs
             </a>
           </nav>
 
