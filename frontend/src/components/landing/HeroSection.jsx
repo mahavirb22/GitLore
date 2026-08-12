@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import HeroAbstractGraphic from '../common/HeroAbstractGraphic';
 
-export default function HeroSection() {
+export default function HeroSection({ onStartAnalyze }) {
   const [repoUrl, setRepoUrl] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (repoUrl.trim()) {
-      navigate('/analysis');
+      if (onStartAnalyze) {
+        onStartAnalyze(repoUrl.trim());
+      } else {
+        navigate(`/analysis?url=${encodeURIComponent(repoUrl.trim())}`);
+      }
     }
   };
 
@@ -38,7 +42,7 @@ export default function HeroSection() {
                 type="text"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
-                placeholder="https://github.com/your/repo"
+                placeholder="https://github.com/facebook/react"
                 className="w-full bg-transparent border-b border-primary py-4 font-body-lg text-primary placeholder-outline-variant focus:outline-none transition-colors pr-10 rounded-none"
               />
               <span className="material-symbols-outlined absolute right-0 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">
@@ -66,7 +70,7 @@ export default function HeroSection() {
 
           {/* Museum Placard Overlay */}
           <Link
-            to="/analysis"
+            to="/analysis?owner=facebook&repo=react"
             className="absolute bottom-4 sm:bottom-8 lg:bottom-16 -left-2 sm:-left-4 lg:-left-12 bg-surface border border-primary p-6 w-[260px] sm:w-[280px] z-20 shadow-xl shadow-primary/5 group cursor-pointer hover:bg-primary transition-colors duration-300"
           >
             <div className="flex flex-col gap-4">

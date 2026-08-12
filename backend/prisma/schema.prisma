@@ -1,0 +1,101 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String      @id @default(uuid())
+  githubId     String      @unique
+  username     String
+  name         String?
+  avatarUrl    String?
+  accessToken  String?     // Encrypted AES-256-GCM
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  analyses     Analysis[]
+  bookmarks    Bookmark[]
+}
+
+model Repository {
+  id            String     @id @default(uuid())
+  owner         String
+  name          String
+  fullName      String     @unique // "facebook/react"
+  description   String?
+  stars         Int        @default(0)
+  forks         Int        @default(0)
+  openIssues    Int        @default(0)
+  defaultBranch String     @default("main")
+  isPrivate     Boolean    @default(false)
+  analyses      Analysis[]
+  createdAt     DateTime   @default(now())
+
+  @@unique([owner, name])
+}
+
+model Analysis {
+  id                 String       @id @default(uuid())
+  repositoryId       String
+  repository         Repository   @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  userId             String?
+  user               User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  totalCommits       Int          @default(0)
+  activePeriod       String       @default("N/A")
+  contributorsCount  Int          @default(0)
+  linesChanged       String       @default("0")
+  barcodeData        String       // JSON array of bar heights/spikes
+  keyArchitects      String       // JSON array of top contributors
+  status             String       @default("completed") // pending, processing, completed, error
+  storyArcs          StoryArc[]
+  commits            Commit[]
+  createdAt          DateTime     @default(now())
+}
+
+model StoryArc {
+  id           String     @id @default(uuid())
+  analysisId   String
+  analysis     Analysis   @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  arcIndex     Int
+  title        String
+  dateRange    String
+  duration     String     @default("3:30")
+  prose        String     // JSON string or array of narrative paragraphs
+  aiInsight    String?
+  commits      Commit[]
+}
+
+model Commit {
+  id           String     @id @default(uuid())
+  analysisId   String
+  analysis     Analysis   @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  storyArcId   String?
+  storyArc     StoryArc?  @relation(fields: [storyArcId], references: [id], onDelete: SetNull)
+  sha          String
+  message      String
+  authorName   String
+  authorAvatar String?
+  committedAt  DateTime
+  additions    Int        @default(0)
+  deletions    Int        @default(0)
+  isHighlight  Boolean    @default(false)
+  hasErrorDot  Boolean    @default(false)
+}
+
+model Bookmark {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storyArcId   String
+  createdAt    DateTime   @default(now())
+}
+
+model Session {
+  id           String     @id
+  sid          String     @unique
+  data         String
+  expiresAt    DateTime
+}

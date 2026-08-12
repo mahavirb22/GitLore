@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default function CommitFrequencyChart({ className = "" }) {
-  const barData = [
+export default function CommitFrequencyChart({ barcodeData = [], className = "" }) {
+  const defaultData = [
     { height: '20%', isSpike: false },
     { height: '10%', isSpike: false },
     { height: '30%', isSpike: false },
@@ -22,13 +22,15 @@ export default function CommitFrequencyChart({ className = "" }) {
     { height: '10%', isSpike: false },
   ];
 
+  const bars = barcodeData.length > 0 ? barcodeData : defaultData;
+
   return (
     <div className={`mb-12 ${className}`}>
       <h4 className="font-label-caps text-[10px] text-on-surface-variant mb-4 uppercase tracking-widest">
         Commit Frequency
       </h4>
       <div className="flex items-end h-24 gap-[2px] w-full border-b border-on-surface/20 pb-1">
-        {barData.map((bar, idx) => (
+        {bars.map((bar, idx) => (
           <div
             key={idx}
             style={{ height: bar.height }}

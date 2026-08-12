@@ -1,22 +1,10 @@
 import React from 'react';
 
-export default function ArcSidebar({ activeArcIndex = 0, onSelectArc }) {
-  const storyArcs = [
-    {
-      id: '01',
-      title: 'The Hooks Revolution',
-      date: 'Oct 2018 - Feb 2019'
-    },
-    {
-      id: '02',
-      title: 'Concurrent Mode Era',
-      date: 'May 2019 - Aug 2021'
-    },
-    {
-      id: '03',
-      title: 'Server Components',
-      date: 'Dec 2020 - Present'
-    }
+export default function ArcSidebar({ activeArcIndex = 0, onSelectArc, storyArcs = [] }) {
+  const displayArcs = storyArcs.length > 0 ? storyArcs : [
+    { id: '01', title: 'The Hooks Revolution', dateRange: 'Oct 2018 - Feb 2019' },
+    { id: '02', title: 'Concurrent Mode Era', dateRange: 'May 2019 - Aug 2021' },
+    { id: '03', title: 'Server Components', dateRange: 'Dec 2020 - Present' }
   ];
 
   return (
@@ -26,15 +14,18 @@ export default function ArcSidebar({ activeArcIndex = 0, onSelectArc }) {
           Story Arcs
         </h3>
         <nav className="space-y-0">
-          {storyArcs.map((arc, index) => {
+          {displayArcs.map((arc, index) => {
             const isActive = index === activeArcIndex;
+            const num = (index + 1).toString().padStart(2, '0');
             return (
               <a
-                key={arc.id}
-                href={`#arc-${arc.id}`}
+                key={arc.id || index}
+                href={`#arc-${arc.id || index}`}
                 onClick={(e) => {
                   e.preventDefault();
                   if (onSelectArc) onSelectArc(index);
+                  const el = document.getElementById(`arc-${arc.id || index}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
                 className="block py-4 border-b border-on-surface/10 group relative transition-colors"
               >
@@ -43,7 +34,7 @@ export default function ArcSidebar({ activeArcIndex = 0, onSelectArc }) {
                 )}
                 <div className="flex items-baseline gap-3 mb-1">
                   <span className="font-label-caps text-[10px] text-on-surface-variant">
-                    {arc.id}
+                    {num}
                   </span>
                   <span
                     className={`font-headline-md text-[16px] font-bold transition-colors ${
@@ -54,7 +45,7 @@ export default function ArcSidebar({ activeArcIndex = 0, onSelectArc }) {
                   </span>
                 </div>
                 <div className="pl-6 font-label-caps text-[10px] text-on-surface-variant">
-                  {arc.date}
+                  {arc.dateRange || arc.date}
                 </div>
               </a>
             );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CommitChip from './CommitChip';
 
 export default function ArcBlock({
@@ -13,6 +13,41 @@ export default function ArcBlock({
   isLast = false
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [speechUtterance, setSpeechUtterance] = useState(null);
+
+  const proseText = Array.isArray(prose) ? prose.join(' ') : prose;
+
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const handleTogglePlay = () => {
+    if (!window.speechSynthesis) {
+      setIsPlaying(!isPlaying);
+      return;
+    }
+
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+    } else {
+      window.speechSynthesis.cancel(); // Stop previous
+      const utterance = new SpeechSynthesisUtterance(`${title}. ${proseText}`);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+
+      setSpeechUtterance(utterance);
+      window.speechSynthesis.speak(utterance);
+      setIsPlaying(true);
+    }
+  };
 
   return (
     <article id={`arc-${id}`} className="mb-24 relative">
@@ -33,9 +68,11 @@ export default function ArcBlock({
       {showAudioPlayer && (
         <div className="flex items-center gap-4 mb-8 bg-surface-container-lowest border border-on-surface/10 p-4 w-full md:w-3/4">
           <button
-            onClick={() => setIsPlaying(!isPlaying)}
+            onClick={handleTogglePlay}
             aria-label={isPlaying ? "Pause narrative" : "Play narrative"}
-            className="w-10 h-10 rounded-full border border-on-surface flex items-center justify-center hover:bg-on-surface hover:text-surface transition-colors cursor-pointer"
+            className={`w-10 h-10 rounded-full border border-on-surface flex items-center justify-center transition-colors cursor-pointer ${
+              isPlaying ? 'bg-primary text-on-primary' : 'hover:bg-on-surface hover:text-surface'
+            }`}
           >
             <span
               className="material-symbols-outlined text-[20px]"
@@ -46,17 +83,17 @@ export default function ArcBlock({
           </button>
           <div className="flex-1">
             <div className="flex justify-between font-label-caps text-[10px] text-on-surface-variant mb-2">
-              <span>Narrative Audio {isPlaying && "(Playing)"}</span>
+              <span>Narrative Audio {isPlaying && "(Reading Aloud)"}</span>
               <span>{duration}</span>
             </div>
             <div className="h-px w-full bg-on-surface/10 relative">
               <div
-                className={`absolute left-0 top-0 h-px bg-[#D8402C] transition-all duration-300 ${
+                className={`absolute left-0 top-0 h-px bg-[#D8402C] transition-all duration-500 ${
                   isPlaying ? 'w-3/4' : 'w-1/4'
                 }`}
               />
               <div
-                className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#D8402C] transition-all duration-300 ${
+                className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#D8402C] transition-all duration-500 ${
                   isPlaying ? 'left-3/4' : 'left-1/4'
                 }`}
               />
@@ -84,9 +121,10 @@ export default function ArcBlock({
           {commits.map((commit, idx) => (
             <CommitChip
               key={idx}
-              hash={commit.hash}
+              hash={commit.sha || commit.hash}
               message={commit.message}
               isHighlight={commit.isHighlight}
+              hasErrorDot={commit.hasErrorDot}
             />
           ))}
         </div>
