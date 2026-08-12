@@ -5,6 +5,8 @@ import ArcSidebar from '../components/dashboard/ArcSidebar';
 import NarrativeFeed from '../components/dashboard/NarrativeFeed';
 import RepoPulsePanel from '../components/dashboard/RepoPulsePanel';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function RepoAnalysisPage() {
   const [searchParams] = useSearchParams();
   const [activeArcIndex, setActiveArcIndex] = useState(0);
@@ -22,9 +24,9 @@ export default function RepoAnalysisPage() {
       setErrorMsg(null);
 
       try {
-        let endpoint = `http://localhost:5000/api/analyze/${ownerParam}/${repoParam}`;
+        let endpoint = `${API_BASE_URL}/api/analyze/${ownerParam}/${repoParam}`;
         if (urlParam) {
-          const res = await fetch('http://localhost:5000/api/analyze', {
+          const res = await fetch(`${API_BASE_URL}/api/analyze`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -58,7 +60,7 @@ export default function RepoAnalysisPage() {
 
   const handleExportMarkdown = () => {
     if (analysisData) {
-      window.location.href = `http://localhost:5000/api/analyze/${analysisData.owner}/${analysisData.repo}/export`;
+      window.location.href = `${API_BASE_URL}/api/analyze/${analysisData.owner}/${analysisData.repo}/export`;
     }
   };
 

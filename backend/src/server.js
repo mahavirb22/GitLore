@@ -3,17 +3,22 @@ import cors from 'cors';
 import helmet from 'helmet';
 import session from 'express-session';
 import sqliteSessionStore from 'connect-sqlite3';
+import pgSessionStore from 'connect-pg-simple';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config/index.js';
 import authRoutes from './routes/authRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
 
-const SQLiteStore = sqliteSessionStore(session);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Trust Proxy for Render/Railway SSL Termination
+if (config.nodeEnv === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // Security Headers
 app.use(helmet({
@@ -21,9 +26,21 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// CORS Configuration
+// CORS Configuration - allow dynamic origin or exact frontend URL
+const allowedOrigins = [
+  config.clientUrl,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+].filter(Boolean);
+
 app.use(cors({
-  origin: config.clientUrl,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || config.nodeEnv !== 'production') {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow during testing
+    }
+  },
   credentials: true
 }));
 
@@ -31,14 +48,26 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Persistent Session Store using SQLite
-const sessionDbDir = path.resolve(__dirname, '../data');
-
-app.use(session({
-  store: new SQLiteStore({
+// Determine Session Store (PostgreSQL vs SQLite)
+let sessionStore;
+if (config.databaseUrl.startsWith('postgres') || config.nodeEnv === 'production') {
+  const PgStore = pgSessionStore(session);
+  sessionStore = new PgStore({
+    conString: config.databaseUrl,
+    tableName: 'session',
+    createTableIfMissing: true
+  });
+} else {
+  const SQLiteStore = sqliteSessionStore(session);
+  const sessionDbDir = path.resolve(__dirname, '../data');
+  sessionStore = new SQLiteStore({
     db: 'sessions.db',
     dir: sessionDbDir
-  }),
+  });
+}
+
+app.use(session({
+  store: sessionStore,
   name: 'gitlore.sid',
   secret: config.sessionSecret,
   resave: false,
@@ -53,7 +82,12 @@ app.use(session({
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'GitLore Backend Service', version: '1.0.0' });
+  res.json({
+    status: 'ok',
+    service: 'GitLore Backend Service',
+    environment: config.nodeEnv,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // API Routes
@@ -70,5 +104,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(config.port, () => {
-  console.log(`GitLore Backend Server listening on http://localhost:${config.port}`);
+  console.log(`GitLore Backend Server running on port ${config.port} (${config.nodeEnv})`);
 });

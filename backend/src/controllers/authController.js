@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { config } from '../config/index.js';
 import { exchangeCodeForToken, getGitHubUserProfile } from '../services/githubService.js';
-import { encryptToken, decryptToken } from '../services/encryptionService.js';
+import { encryptToken } from '../services/encryptionService.js';
 
 const prisma = new PrismaClient();
 
@@ -9,11 +9,11 @@ export async function initiateGitHubOAuth(req, res) {
   if (!config.github.clientId) {
     return res.status(500).json({
       error: 'OAuth Not Configured',
-      message: 'GITHUB_CLIENT_ID is not configured in server environment variables.'
+      message: 'GITHUB_CLIENT_ID is not configured in environment variables.'
     });
   }
 
-  const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/github/callback`;
+  const redirectUri = config.github.callbackUrl || `${req.protocol}://${req.get('host')}/api/auth/github/callback`;
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read:user,repo`;
 
   return res.redirect(githubAuthUrl);

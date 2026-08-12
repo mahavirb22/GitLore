@@ -8,6 +8,8 @@ import TestimonialSection from '../components/landing/TestimonialSection';
 import HeroAbstractGraphic from '../components/common/HeroAbstractGraphic';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function LandingPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [loadingStage, setLoadingStage] = useState('Fetching GitHub commit history...');
@@ -23,7 +25,7 @@ export default function LandingPage() {
       setTimeout(() => setLoadingStage('Clustering commits into architectural story arcs...'), 1200);
       setTimeout(() => setLoadingStage('Running OpenRouter AI narration pass...'), 2400);
 
-      const response = await fetch('http://localhost:5000/api/analyze', {
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

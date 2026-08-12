@@ -8,11 +8,13 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
     "axios": "^1.7.9",
+    "connect-pg-simple": "^10.0.0",
     "connect-sqlite3": "^0.9.15",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
@@ -21,6 +23,7 @@
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.18.1",
     "helmet": "^8.0.0",
+    "pg": "^8.13.1",
     "zod": "^3.24.2"
   },
   "devDependencies": {

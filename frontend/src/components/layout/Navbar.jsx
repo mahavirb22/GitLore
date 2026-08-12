@@ -3,6 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import LogoMark from '../common/LogoMark';
 import MobileMenu from './MobileMenu';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -11,7 +13,7 @@ export default function Navbar() {
 
   useEffect(() => {
     // Check session user state from backend API
-    fetch('http://localhost:5000/api/auth/me', { credentials: 'include' })
+    fetch(`${API_BASE_URL}/api/auth/me`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.user) {
@@ -22,12 +24,12 @@ export default function Navbar() {
   }, []);
 
   const handleGitHubLogin = () => {
-    window.location.href = 'http://localhost:5000/api/auth/github';
+    window.location.href = `${API_BASE_URL}/api/auth/github`;
   };
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5000/api/auth/logout', {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });

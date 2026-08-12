@@ -70,8 +70,8 @@ model StoryArc {
 
 model Commit {
   id           String     @id @default(uuid())
-  analysisId   String
-  analysis     Analysis   @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  analysisId   String?
+  analysis     Analysis?  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
   storyArcId   String?
   storyArc     StoryArc?  @relation(fields: [storyArcId], references: [id], onDelete: SetNull)
   sha          String

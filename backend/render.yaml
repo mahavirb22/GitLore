@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: gitlore-api
+    env: node
+    buildCommand: npm install && npx prisma db push && npm run db:seed
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gitlore-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ENCRYPTION_SECRET
+        generateValue: true
+
+databases:
+  - name: gitlore-db
+    databaseName: gitlore
+    user: gitlore_user
