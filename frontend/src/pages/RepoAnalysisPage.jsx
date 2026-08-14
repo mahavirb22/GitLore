@@ -4,6 +4,7 @@ import LogoMark from '../components/common/LogoMark';
 import ArcSidebar from '../components/dashboard/ArcSidebar';
 import NarrativeFeed from '../components/dashboard/NarrativeFeed';
 import RepoPulsePanel from '../components/dashboard/RepoPulsePanel';
+import CommitDiffModal from '../components/dashboard/CommitDiffModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -13,6 +14,8 @@ export default function RepoAnalysisPage() {
   const [analysisData, setAnalysisData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [selectedCommit, setSelectedCommit] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const ownerParam = searchParams.get('owner') || 'facebook';
   const repoParam = searchParams.get('repo') || 'react';
@@ -89,6 +92,15 @@ export default function RepoAnalysisPage() {
     );
   }
 
+  // Filter story arcs if user enters a search query
+  const filteredArcs = searchQuery.trim()
+    ? analysisData.storyArcs.filter(arc =>
+        arc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        arc.prose.some(p => p.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        arc.commits.some(c => c.message.toLowerCase().includes(searchQuery.toLowerCase()) || c.sha.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    : analysisData.storyArcs;
+
   return (
     <div className="bg-surface font-body-md text-on-surface antialiased min-h-screen">
       {/* Fixed Header */}
@@ -119,23 +131,33 @@ export default function RepoAnalysisPage() {
             <nav className="hidden md:flex items-center gap-6 mr-6">
               <button
                 onClick={handleExportMarkdown}
-                className="transition-colors text-primary font-bold font-label-caps uppercase cursor-pointer hover:underline"
+                className="transition-colors text-primary font-bold font-label-caps uppercase cursor-pointer hover:underline text-xs"
               >
                 Export Story
               </button>
               <button
-                onClick={() => navigator.clipboard?.writeText(window.location.href)}
-                className="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors uppercase cursor-pointer"
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                  alert('Exhibit URL copied to clipboard!');
+                }}
+                className="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors uppercase cursor-pointer text-xs"
               >
                 Share
               </button>
             </nav>
-            <div className="flex items-center gap-3 sm:gap-4">
-              <span className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-on-surface text-[20px]">
-                search
-              </span>
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="material-symbols-outlined text-on-primary text-[18px]">person</span>
+
+            <div className="flex items-center gap-2">
+              <div className="relative hidden sm:block">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Filter exhibit..."
+                  className="bg-surface-container-low border border-outline-variant/30 px-3 py-1 text-xs font-body-md focus:outline-none focus:border-primary pr-8 rounded-none"
+                />
+                <span className="material-symbols-outlined text-outline-variant text-[16px] absolute right-2 top-1/2 -translate-y-1/2">
+                  search
+                </span>
               </div>
             </div>
           </div>
@@ -149,9 +171,12 @@ export default function RepoAnalysisPage() {
             <ArcSidebar
               activeArcIndex={activeArcIndex}
               onSelectArc={(index) => setActiveArcIndex(index)}
-              storyArcs={analysisData.storyArcs}
+              storyArcs={filteredArcs}
             />
-            <NarrativeFeed storyArcs={analysisData.storyArcs} />
+            <NarrativeFeed
+              storyArcs={filteredArcs}
+              onSelectCommit={(commit) => setSelectedCommit(commit)}
+            />
             <RepoPulsePanel
               stats={{
                 contributorsCount: analysisData.contributorsCount,
@@ -164,6 +189,14 @@ export default function RepoAnalysisPage() {
           </div>
         </div>
       </main>
+
+      {/* Commit Diff Modal */}
+      <CommitDiffModal
+        commit={selectedCommit}
+        repoOwner={analysisData.owner}
+        repoName={analysisData.repo}
+        onClose={() => setSelectedCommit(null)}
+      />
     </div>
   );
 }

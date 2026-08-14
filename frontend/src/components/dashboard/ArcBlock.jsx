@@ -10,10 +10,10 @@ export default function ArcBlock({
   commits = [],
   aiInsight,
   showAudioPlayer = true,
-  isLast = false
+  isLast = false,
+  onSelectCommit
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speechUtterance, setSpeechUtterance] = useState(null);
 
   const proseText = Array.isArray(prose) ? prose.join(' ') : prose;
 
@@ -35,7 +35,7 @@ export default function ArcBlock({
       window.speechSynthesis.cancel();
       setIsPlaying(false);
     } else {
-      window.speechSynthesis.cancel(); // Stop previous
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(`${title}. ${proseText}`);
       utterance.rate = 1.0;
       utterance.pitch = 1.0;
@@ -43,7 +43,6 @@ export default function ArcBlock({
       utterance.onend = () => setIsPlaying(false);
       utterance.onerror = () => setIsPlaying(false);
 
-      setSpeechUtterance(utterance);
       window.speechSynthesis.speak(utterance);
       setIsPlaying(true);
     }
@@ -125,6 +124,7 @@ export default function ArcBlock({
               message={commit.message}
               isHighlight={commit.isHighlight}
               hasErrorDot={commit.hasErrorDot}
+              onClick={() => onSelectCommit && onSelectCommit(commit)}
             />
           ))}
         </div>

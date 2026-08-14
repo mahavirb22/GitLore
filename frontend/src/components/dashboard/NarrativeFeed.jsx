@@ -2,7 +2,7 @@ import React from 'react';
 import ArcBlock from './ArcBlock';
 import SectionDivider from '../common/SectionDivider';
 
-export default function NarrativeFeed({ storyArcs = [] }) {
+export default function NarrativeFeed({ storyArcs = [], onSelectCommit }) {
   const displayArcs = storyArcs.length > 0 ? storyArcs : [
     {
       id: '01',
@@ -57,6 +57,7 @@ export default function NarrativeFeed({ storyArcs = [] }) {
                 commits={arc.commits}
                 aiInsight={arc.aiInsight}
                 isLast={index === displayArcs.length - 1}
+                onSelectCommit={onSelectCommit}
               />
             </div>
           </React.Fragment>

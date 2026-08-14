@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import LogoMark from '../common/LogoMark';
 import MobileMenu from './MobileMenu';
+import MyArchiveModal from '../dashboard/MyArchiveModal';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -9,6 +10,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -89,13 +91,6 @@ export default function Navbar() {
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-4 md:gap-6 relative">
-            <button
-              className="text-on-surface-variant hover:text-on-surface flex items-center cursor-pointer"
-              aria-label="Search"
-            >
-              <span className="material-symbols-outlined text-[20px]">search</span>
-            </button>
-
             {currentUser ? (
               <div className="relative">
                 <button
@@ -118,11 +113,24 @@ export default function Navbar() {
                       <p className="font-label-caps text-xs text-primary font-bold">{currentUser.name}</p>
                       <p className="font-mono-sm text-[10px] text-on-surface-variant">@{currentUser.username}</p>
                     </div>
+
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        setArchiveModalOpen(true);
+                      }}
+                      className="w-full text-left px-3 py-2 font-label-caps text-xs uppercase text-primary hover:bg-surface-container-high transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">folder_open</span>
+                      <span>My Archive</span>
+                    </button>
+
                     <button
                       onClick={handleLogout}
-                      className="w-full text-left px-3 py-2 font-label-caps text-xs uppercase text-error hover:bg-error-container/20 transition-colors cursor-pointer"
+                      className="w-full text-left px-3 py-2 font-label-caps text-xs uppercase text-error hover:bg-error-container/20 transition-colors cursor-pointer flex items-center gap-2"
                     >
-                      Sign Out
+                      <span className="material-symbols-outlined text-[16px]">logout</span>
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 )}
@@ -153,6 +161,12 @@ export default function Navbar() {
       <MobileMenu
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
+      />
+
+      {/* My Archive Modal */}
+      <MyArchiveModal
+        isOpen={archiveModalOpen}
+        onClose={() => setArchiveModalOpen(false)}
       />
     </>
   );
